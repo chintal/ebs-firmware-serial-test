@@ -44,6 +44,8 @@
     */
     static inline void bc_init(void);
     
+    static inline void bc_flush(void);
+    
     static inline uint8_t bc_reqlock(uint8_t len, uint8_t token);
     
     /**
@@ -86,7 +88,11 @@
     	
         static inline void bc_init(void){
             uart_init(BOARD_BCIFACE_INTFNUM);
-        }    
+        }
+        
+        static inline void bc_flush(void){
+            ;
+        }
         
         static inline uint8_t bc_reqlock(uint8_t len, uint8_t token){
             return uart_reqlock(BOARD_BCIFACE_INTFNUM, len, token);
@@ -135,6 +141,10 @@
             usbcdc_init(BOARD_BCIFACE_INTFNUM);
         }    
         
+        static inline void bc_flush(void){
+            usbcdc_send_flush(BOARD_BCIFACE_INTFNUM);
+        }
+        
         static inline uint8_t bc_reqlock(uint8_t len, uint8_t token){
             return usbcdc_reqlock(BOARD_BCIFACE_INTFNUM, len, token);
         }
@@ -144,11 +154,15 @@
         }
         
         static inline uint8_t bc_putc(uint8_t byte, uint8_t token, uint8_t handlelock){
-            return usbcdc_putc(BOARD_BCIFACE_INTFNUM, byte, token, handlelock);
+            uint8_t rval = usbcdc_putc(BOARD_BCIFACE_INTFNUM, byte, token, handlelock);
+            //usbcdc_send_flush(BOARD_BCIFACE_INTFNUM);
+            return rval;
         }
         
         static inline uint8_t bc_write(void *buffer, uint8_t len, uint8_t token){
-            return usbcdc_write(BOARD_BCIFACE_INTFNUM, buffer, len, token);
+            uint8_t rval = usbcdc_write(BOARD_BCIFACE_INTFNUM, buffer, len, token);
+            //usbcdc_send_flush(BOARD_BCIFACE_INTFNUM);
+            return rval;
         }
         
         static inline uint8_t bc_printf(const char *format, ...){

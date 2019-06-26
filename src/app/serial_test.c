@@ -16,7 +16,7 @@ uint8_t tbuffer[20];
 #define SERIAL_TEST_ROUNDTRIP           'd'
 #define SERIAL_TEST_ROUNDTRIP_CHUNKED   'e'
 
-#define STE_CHUNK_SIZE 5
+#define STE_CHUNK_SIZE  5
 
 uint8_t serial_test_state;
 uint8_t serial_test_persistence;
@@ -42,6 +42,7 @@ static void _serial_test_select(void){
     bc_discard_rxb();
     if(bc_reqlock(1, BYTEBUF_TOKEN_SCHAR)){
         bc_putc(serial_test_state, BYTEBUF_TOKEN_SCHAR, 0);
+        bc_flush();
     }   
     
     led_off(BOARD_RED_LED_SELECTOR);
