@@ -50,7 +50,7 @@
 #include <platform/types.h>
 
 #define APP_ENABLE_BCIF             1
-#define APP_BCIFACE_USE_USBCDC      0
+#define APP_BCIFACE_USE_USBCDC      1
 
 // Core HAL Configuration. Should be calculated instead.
 

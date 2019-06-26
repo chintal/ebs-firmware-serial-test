@@ -3,11 +3,11 @@
 #include "serial_test.h"
 #include <prbs/prbs.h>
 #include "sys/bciface.h"
+#include "drivers/led/led.h"
 
 lfsr16_t prbs;
 const char test_str[] = "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 uint8_t tbuffer[20];
-uint8_t serial_test_persistence;
 
 #define SERIAL_TEST_PREINIT             0x00
 #define SERIAL_TEST_THROUGHPUT          'a'
@@ -19,21 +19,23 @@ uint8_t serial_test_persistence;
 #define STE_CHUNK_SIZE 5
 
 uint8_t serial_test_state;
-uint8_t serial_test_func;
+uint8_t serial_test_persistence;
 
 
 void serial_test_init(void)
 {
     bc_init();
     serial_test_state = SERIAL_TEST_PREINIT;
-    // Turn on Red LED
     
-    // Turn off Green LED
+    led_init(BOARD_RED_LED_SELECTOR);
+    led_init(BOARD_GREEN_LED_SELECTOR);
 
+    led_on(BOARD_RED_LED_SELECTOR);
+    led_off(BOARD_GREEN_LED_SELECTOR);
 }
 
 static void _serial_test_select(void){
-    if (!bc_unhandled_rxb()){
+    if (!(bc_unhandled_rxb())){
         return;
     }
     serial_test_state = bc_getc();
@@ -42,9 +44,8 @@ static void _serial_test_select(void){
         bc_putc(serial_test_state, BYTEBUF_TOKEN_SCHAR, 0);
     }   
     
-    // Turn off Red LED
-    
-    // Turn on Green LED
+    led_off(BOARD_RED_LED_SELECTOR);
+    led_on(BOARD_GREEN_LED_SELECTOR);
     
     // Special Intialization
     switch(serial_test_state){
@@ -52,7 +53,7 @@ static void _serial_test_select(void){
             lfsr16_vInit(&prbs);
             break;
         case SERIAL_TEST_THROUGHPUT_RAW:
-            serial_test_persistence = 0;
+            serial_test_persistence = '0';
         default:
             break;
     }
@@ -162,6 +163,8 @@ void serial_test_reactor(void){
         case SERIAL_TEST_ROUNDTRIP_CHUNKED:
             _serial_test_roundtrip_chunked();
             break;
+        default:
+            serial_test_state = SERIAL_TEST_PREINIT;
+            break;
     }
 }
-
